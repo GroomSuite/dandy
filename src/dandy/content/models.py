@@ -1,19 +1,27 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from .mixins import CreatedDateMixin
 
-class Image(models.Model):
+
+class Image(CreatedDateMixin):
     image = models.ImageField(verbose_name=_('Image'), blank=True,
                               null=True, max_length=500)
-    entry_time = models.DateTimeField(verbose_name=_('Entry time'),
-                                      auto_now_add=True)
     title = models.CharField(verbose_name=_('Title'), blank=True,
                              null=True, max_length=350)
     description = models.TextField(verbose_name=_(
         'Description'), default='', blank=True)
+    data = JSONField()
 
 
-class Article(models.Model):
+class Keyword(CreatedDateMixin):
+    name = models.CharField(
+        verbose_name=_('Name'), max_length=100, db_index=True, unique=True)
+    data = JSONField()
+
+
+class Article(CreatedDateMixin):
     title = models.CharField(verbose_name=_('Title'), max_length=511)
     label = models.CharField(verbose_name=_('Label'), max_length=255,
                              default='', blank=True)
@@ -31,3 +39,4 @@ class Article(models.Model):
         verbose_name=_('Publish to'), null=True, blank=True)
     is_published = models.BooleanField(
         verbose_name=_('Is published'), default=False)
+    data = JSONField()
