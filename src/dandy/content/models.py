@@ -6,19 +6,19 @@ from .mixins import CreatedDateMixin
 
 
 class Image(CreatedDateMixin):
-    image = models.ImageField(verbose_name=_('Image'), blank=True,
-                              null=True, max_length=500)
+    image_file = models.ImageField(verbose_name=_('Image'), blank=True,
+                                   null=True, max_length=500)
     title = models.CharField(verbose_name=_('Title'), blank=True,
                              null=True, max_length=350)
     description = models.TextField(verbose_name=_(
         'Description'), default='', blank=True)
-    data = JSONField()
+    data = JSONField(default=dict, blank=True, null=True)
 
 
 class Keyword(CreatedDateMixin):
     name = models.CharField(
         verbose_name=_('Name'), max_length=100, db_index=True, unique=True)
-    data = JSONField()
+    data = JSONField(default=dict, blank=True, null=True)
 
 
 class Article(CreatedDateMixin):
@@ -39,4 +39,10 @@ class Article(CreatedDateMixin):
         verbose_name=_('Publish to'), null=True, blank=True)
     is_published = models.BooleanField(
         verbose_name=_('Is published'), default=False)
-    data = JSONField()
+    data = JSONField(default=dict, blank=True, null=True)
+
+    class Meta:
+        ordering = ['-created_on']
+
+    def __str__(self):
+        return f'{self.id}:{self.title}'
