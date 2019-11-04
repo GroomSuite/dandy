@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
@@ -17,7 +18,7 @@ class ImageAdmin(admin.ModelAdmin):
 
     def image_preview(self, obj):
         if obj.image_file:
-            return mark_safe(f'<img src="{obj.image_file}" style="width: 45px; height:45px;" />')
+            return mark_safe(f'<img src="{settings.MEDIA_URL}{obj.image_file}" style="width: 100%; max-width: 256px;" />')
         else:
             return 'No Image Found'
 
