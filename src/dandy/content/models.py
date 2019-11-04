@@ -6,13 +6,20 @@ from .mixins import CreatedDateMixin
 
 
 class Image(CreatedDateMixin):
-    image_file = models.ImageField(verbose_name=_('Image'), blank=True,
-                                   null=True, max_length=500)
+    image_file = models.ImageField(verbose_name=_(
+        'Image'), max_length=500, upload_to='upload')
     title = models.CharField(verbose_name=_('Title'), blank=True,
                              null=True, max_length=350)
     description = models.TextField(verbose_name=_(
         'Description'), default='', blank=True)
     data = JSONField(default=dict, blank=True, null=True)
+
+    def __str__(self):
+        return self.calculated_name
+
+    @property
+    def calculated_name(self):
+        return self.title if self.title else self.image_file.name
 
 
 class Keyword(CreatedDateMixin):
