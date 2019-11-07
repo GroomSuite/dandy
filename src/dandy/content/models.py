@@ -39,6 +39,8 @@ class Keyword(CreatedDateMixin):
 
         return super().save(*args, **kwargs)
 
+# TODO: section with parent
+
 
 class Article(CreatedDateMixin):
     title = models.CharField(verbose_name=_("Title"), max_length=511)
