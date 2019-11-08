@@ -39,10 +39,34 @@ class Keyword(CreatedDateMixin):
 
         return super().save(*args, **kwargs)
 
-# TODO: section with parent
+
+class Section(models.Model):
+    name = models.CharField(verbose_name=_('Name'), max_length=100)
+    parent = models.ForeignKey(
+        "content.Section",
+        verbose_name=_("Parent section"),
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="subsections",
+    )
+    order = models.PositiveIntegerField(verbose_name=_('Order'), default=0)
+    data = JSONField(default=dict, blank=True, null=True)
+
+    def __str__(self):
+        full_name = f"{self.parent.name} - {self.name}" if self.parent else self.name
+
+        return f"{self.id}:{full_name}"
 
 
 class Article(CreatedDateMixin):
+    section = models.ForeignKey(
+        "content.Section",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="section_articles",
+    )
     title = models.CharField(verbose_name=_("Title"), max_length=511)
     label = models.CharField(
         verbose_name=_("Label"), max_length=255, default="", blank=True
@@ -54,14 +78,14 @@ class Article(CreatedDateMixin):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="image",
+        related_name="image_articles",
     )
     alter_image = models.ForeignKey(
         "content.Image",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name="alter_image",
+        related_name="alter_image_articles",
     )
     content = models.TextField(verbose_name=_(
         "Content"), default="", blank=True)
