@@ -93,3 +93,4 @@ python_boilerplate/
 # example app media
 example/media/
 *.sqlite3
+static/media
