@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from dynamic_rest.viewsets import DynamicModelViewSet
 
-# Create your views here.
+from .serializers import ArticleSerializer
+from .models import Article
+
+
+class ArticleViewSet(DynamicModelViewSet):
+    serializer_class = ArticleSerializer
+    queryset = Article.objects.all()
