@@ -3,13 +3,14 @@ from django.conf.urls import url
 
 from dynamic_rest.routers import DynamicRouter
 
-from dandy.content import views
+from .views import ArticleViewSet, ImageViewSet
 
 app_name = 'content'
 
 router = DynamicRouter()
-router.register('articles', views.ArticleViewSet)
-router.register_resource(views.ArticleViewSet)
+
+router.register('article', ArticleViewSet)
+router.register('image', ImageViewSet)
 
 
 urlpatterns = [
