@@ -1,30 +1,22 @@
 from dynamic_rest.viewsets import DynamicModelViewSet
 
-from .serializers import ArticleSerializer, ArticleDetailSerializer, ImageSerializer
-from .models import Article, Image
+from .serializers import ArticleSerializer, ImageSerializer, KeywordSerializer
+from .models import Article, Image, Keyword
 
 
 from rest_framework import viewsets
 
 
-class MultiSerializerMixin(viewsets.ModelViewSet):
-    serializer_classes = {}
-
-    def get_serializer_class(self):
-        return self.serializer_classes.get(
-            self.action,
-            self.serializer_class
-        )
+class ImageViewSet(DynamicModelViewSet):
+    queryset = Image.objects.all()
+    serializer_class = ImageSerializer
 
 
-class ArticleViewSet(MultiSerializerMixin, DynamicModelViewSet):
+class KeywordViewSet(DynamicModelViewSet):
+    queryset = Keyword.objects.all()
+    serializer_class = KeywordSerializer
+
+
+class ArticleViewSet(DynamicModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
-    serializer_classes = {
-        'detail':  ArticleDetailSerializer
-    }
-
-
-class ImageViewSet(DynamicModelViewSet):
-    serializer_class = ImageSerializer
-    queryset = Image.objects.all()

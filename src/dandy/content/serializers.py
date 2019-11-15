@@ -2,7 +2,7 @@ from dynamic_rest.serializers import DynamicModelSerializer
 from dynamic_rest.fields import DynamicRelationField
 from rest_framework import serializers
 
-from .models import Article, Image
+from .models import Article, Image, Keyword
 
 
 class ImageSerializer(DynamicModelSerializer):
@@ -12,29 +12,24 @@ class ImageSerializer(DynamicModelSerializer):
         fields = ("id", "image_file", "title", "url")
 
 
-class ArticleSerializer(DynamicModelSerializer):
-    image = serializers.SerializerMethodField()
+class KeywordSerializer(DynamicModelSerializer):
+    class Meta:
+        model = Keyword
+        name = "keyword"
+        fields = ("id", "name", "url")
 
+
+class ArticleSerializer(DynamicModelSerializer):
     class Meta:
         model = Article
         name = "article"
-        fields = ("id", "label", "title", "publish_from",
-                  "image", "lead_text", "url")
-
-    def get_image(self, obj):
-        image = obj.alter_image
-
-        if not image:
-            image = obj.main_image
-
-        serialized = ImageSerializer(
-            image, context={"request": self.context["request"]}
+        fields = (
+            "id", "label", "title", "publish_from",
+            "main_image", "alter_image", "lead_text",
+            "keywords",
+            "url"
         )
 
-        return serialized.data
-
-
-class ArticleDetailSerializer(ArticleSerializer):
-    class Meta:
-        fields = ("id", "label", "title", "publish_from",
-                  "main_image", "alter_image", "lead_text", "url")
+    main_image = DynamicRelationField('ImageSerializer', embed=True)
+    alter_image = DynamicRelationField('ImageSerializer', embed=True)
+    keywords = DynamicRelationField('KeywordSerializer', many=True)
