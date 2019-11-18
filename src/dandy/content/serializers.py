@@ -55,9 +55,10 @@ class ArticleSerializer(DynamicModelSerializer):
             "id", "label", "title", "publish_from", "url",
             "main_image", "alter_image", "lead_text",
             "keywords", "section",
-            "data"
+            "data",
+            "content", "publish_to", "is_published"
         ]
-        deferred_fields = ["data"]
+        deferred_fields = ["data", "content", "publish_to", "is_published"]
 
     main_image = DynamicRelationField('ImageSerializer', embed=True)
     alter_image = DynamicRelationField('ImageSerializer', embed=True)
