@@ -1,7 +1,7 @@
 from dynamic_rest.viewsets import DynamicModelViewSet
 
-from .serializers import ArticleSerializer, ImageSerializer, KeywordSerializer
-from .models import Article, Image, Keyword
+from .serializers import ArticleSerializer, ImageSerializer, KeywordSerializer, SectionSerializer
+from .models import Article, Image, Keyword, Section
 
 
 from rest_framework import viewsets
@@ -20,3 +20,8 @@ class KeywordViewSet(DynamicModelViewSet):
 class ArticleViewSet(DynamicModelViewSet):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+
+
+class SectionViewSet(DynamicModelViewSet):
+    queryset = Section.objects.all()
+    serializer_class = SectionSerializer
