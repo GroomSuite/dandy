@@ -1,7 +1,5 @@
+from .conf import settings
+
+
 def get_default_article_data():
-    return {
-        'content': [],
-        'keywords': [],
-        'cover_image': None,
-        'section': None
-    }
+    return settings.CONTENT_DEFAULT_ARTICLE_DATA
