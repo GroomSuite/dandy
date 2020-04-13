@@ -30,3 +30,4 @@ class ContentConf(AppConf):
         'one': None,
         'many': []
     }
+    RELATION_TYPES = ['one', 'many']
