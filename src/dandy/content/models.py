@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from .mixins import CreatedDateMixin
+from .utils import get_default_article_data
 
 
 class Image(CreatedDateMixin):
@@ -60,46 +61,10 @@ class Section(models.Model):
 
 
 class Article(CreatedDateMixin):
-    section = models.ForeignKey(
-        "content.Section",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="section_articles",
-    )
     title = models.CharField(verbose_name=_("Title"), max_length=511)
-    label = models.CharField(
-        verbose_name=_("Label"), max_length=255, default="", blank=True
-    )
-    lead_text = models.TextField(verbose_name=_(
-        "Lead text"), default="", blank=True)
-    main_image = models.ForeignKey(
-        "content.Image",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="image_articles",
-    )
-    alter_image = models.ForeignKey(
-        "content.Image",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="alter_image_articles",
-    )
-    content = models.TextField(verbose_name=_(
-        "Content"), default="", blank=True)
-    keywords = models.ManyToManyField(
-        "content.Keyword", verbose_name=_("Keywords"))
-    publish_from = models.DateTimeField(
-        verbose_name=_("Publish from"), null=True, blank=True, db_index=True
-    )
-    publish_to = models.DateTimeField(
-        verbose_name=_("Publish to"), null=True, blank=True
-    )
     is_published = models.BooleanField(
         verbose_name=_("Is published"), default=False)
-    data = JSONField(default=dict, blank=True, null=True)
+    data = JSONField(default=get_default_article_data)
 
     class Meta:
         ordering = ["-created_on"]
