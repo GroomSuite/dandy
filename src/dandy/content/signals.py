@@ -5,15 +5,7 @@ from .conf import settings
 
 from django.apps import apps
 
-
-class UnsuportedRelationTypeError(Exception):
-    """Raised when defined type of relation is not supported"""
-    pass
-
-
-class ModelDoesNotExistError(Exception):
-    """Raised when defined model for relation does not exist"""
-    pass
+from .exceptions import ModelDoesNotExistError, UnsuportedRelationTypeError
 
 
 def validate_model_name(name, definition):
