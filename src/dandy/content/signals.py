@@ -8,7 +8,7 @@ from .conf import settings
 from .exceptions import (
     ModelDoesNotExistError,
     UnsuportedRelationTypeError,
-    ModelInstanceDoesNotExistError,
+    InstanceDoesNotExistError,
     IdValueNotFoundError
 )
 from .serializers import serializers_mapping
@@ -56,6 +56,21 @@ def get_relation_definitions():
     return relation_definitions
 
 
+def get_related_id(value):
+    if isinstance(value, int):
+        return value
+    elif isinstance(value, dict) and 'id' in value:
+        return value['id']
+    else:
+        raise IdValueNotFoundError
+
+
+def get_serialized_data(obj):
+    serializer_class = serializers_mapping.get(obj._meta.model)
+
+    return serializer_class(obj, context={'request': None}, include_fields='*').data
+
+
 # TODO: move logic inside somewhere else (module?)
 @receiver(pre_save, sender='content.Article')
 def serialize_related_objects(sender, instance, **kwargs):
@@ -63,25 +78,16 @@ def serialize_related_objects(sender, instance, **kwargs):
 
     for key, definition in relation_definitions.items():
         model_class = apps.get_model(definition.get('model'))
-        serializer_class = serializers_mapping.get(model_class)
         value = instance.data.get(key)
         default_value = settings.CONTENT_TYPE_DEFAULTS.get(
             definition.get('type'))
 
         if value != default_value:
-            if isinstance(value, int):
-                related_id = value
-            elif isinstance(value, dict) and 'id' in value:
-                related_id = value['id']
-            else:
-                raise IdValueNotFoundError
-
+            related_id = get_related_id(value)
             related_obj = model_class.objects.filter(id=related_id).first()
 
             if related_obj:
-                serialized_data = serializer_class(
-                    related_obj, context={'request': None}, include_fields='*').data
-
-                instance.data[key] = serialized_data
+                instance.data[key] = get_serialized_data(related_obj)
             else:
-                raise ModelInstanceDoesNotExistError
+                raise InstanceDoesNotExistError(
+                    f'{model_class} instance with id {related_id} does not exist!')
