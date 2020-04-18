@@ -8,7 +8,7 @@ class ModelDoesNotExistError(Exception):
     pass
 
 
-class ModelInstanceDoesNotExistError(Exception):
+class InstanceDoesNotExistError(Exception):
     """Raised when model instance does not exist"""
     pass
 
