@@ -59,11 +59,13 @@ def get_relation_definitions():
 def get_related_id(value):
     if isinstance(value, int):
         return value
-    elif isinstance(value, dict) and 'id' in value:
+    elif isinstance(value, dict) and 'id' in value and isinstance(value['id'], int):
         return value['id']
     else:
         raise IdValueNotFoundError(
-            f'Passed value must be integer type or dict with "id" key-value pair!')
+            'Passed value must be integer type or dict with "id" key-value pair! '
+            f'"{value}" cannot be handled properly.'
+        )
 
 
 def get_serialized_data(obj):
@@ -83,6 +85,23 @@ def get_related_serialized_data(value, model_class):
             f'{model_class} instance with id {related_id} does not exist!')
 
 
+def get_related_serialized_data_many(value_list, model_class):
+    if isinstance(value_list, list):
+        related_data_list = []
+
+        for item in value_list:
+            related_data = get_related_serialized_data(
+                item, model_class)
+            related_data_list.append(related_data)
+
+        return related_data_list
+    else:
+        raise IdValueNotFoundError(
+            'Passed value must be list of integer type values or dicts with "id" key-value pair! '
+            f'"{value_list}" cannot be handled properly.'
+        )
+
+
 # TODO: move logic inside somewhere else (module?)
 @receiver(pre_save, sender='content.Article')
 def serialize_related_objects(sender, instance, **kwargs):
@@ -100,12 +119,5 @@ def serialize_related_objects(sender, instance, **kwargs):
                 instance.data[key] = get_related_serialized_data(
                     value, model_class)
             elif relation_type == 'many':
-                if isinstance(value, list):
-                    related_data_list = []
-
-                    for item in value:
-                        related_data = get_related_serialized_data(
-                            item, model_class)
-                        related_data_list.append(related_data)
-
-                    instance.data[key] = related_data_list
+                instance.data[key] = get_related_serialized_data_many(
+                    value, model_class)
