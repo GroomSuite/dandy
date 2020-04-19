@@ -62,13 +62,25 @@ def get_related_id(value):
     elif isinstance(value, dict) and 'id' in value:
         return value['id']
     else:
-        raise IdValueNotFoundError
+        raise IdValueNotFoundError(
+            f'Passed value must be integer type or dict with "id" key-value pair!')
 
 
 def get_serialized_data(obj):
     serializer_class = serializers_mapping.get(obj._meta.model)
 
     return serializer_class(obj, context={'request': None}, include_fields='*').data
+
+
+def get_related_serialized_data(value, model_class):
+    related_id = get_related_id(value)
+    related_obj = model_class.objects.filter(id=related_id).first()
+
+    if related_obj:
+        return get_serialized_data(related_obj)
+    else:
+        raise InstanceDoesNotExistError(
+            f'{model_class} instance with id {related_id} does not exist!')
 
 
 # TODO: move logic inside somewhere else (module?)
@@ -81,13 +93,19 @@ def serialize_related_objects(sender, instance, **kwargs):
         value = instance.data.get(key)
         default_value = settings.CONTENT_TYPE_DEFAULTS.get(
             definition.get('type'))
+        relation_type = definition.get('type')
 
         if value != default_value:
-            related_id = get_related_id(value)
-            related_obj = model_class.objects.filter(id=related_id).first()
+            if relation_type == 'one':
+                instance.data[key] = get_related_serialized_data(
+                    value, model_class)
+            elif relation_type == 'many':
+                if isinstance(value, list):
+                    related_data_list = []
 
-            if related_obj:
-                instance.data[key] = get_serialized_data(related_obj)
-            else:
-                raise InstanceDoesNotExistError(
-                    f'{model_class} instance with id {related_id} does not exist!')
+                    for item in value:
+                        related_data = get_related_serialized_data(
+                            item, model_class)
+                        related_data_list.append(related_data)
+
+                    instance.data[key] = related_data_list
