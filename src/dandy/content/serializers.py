@@ -57,3 +57,11 @@ class ArticleSerializer(DynamicModelSerializer):
             "is_published"
         ]
         deferred_fields = ["data", "is_published"]
+
+
+serializers_mapping = {
+    Article: ArticleSerializer,
+    Section: SectionSerializer,
+    Keyword: KeywordSerializer,
+    Image: ImageSerializer
+}
